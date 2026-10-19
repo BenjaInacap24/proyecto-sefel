@@ -74,7 +74,7 @@ El orden y alcance de estos puntos debe acordarse con SEFEL: son trabajo pendien
 
 ## Preparación de GitHub, Vercel y Supabase
 
-El código está publicado en `BenjaInacap24/proyecto-sefel` (actualmente público) y el proyecto Vercel `proyecto-sefel` ya está enlazado con el repositorio. Aún no hay despliegue porque falta configurar `DATABASE_URL`. El proyecto Supabase `sefel-portal` está aprovisionado en `MoralesCompany`, región `sa-east-1`; Vercel detecta Django por `manage.py`, usa `sefel.wsgi.application` y publica `STATIC_ROOT` mediante su CDN. `.python-version` fija Python 3.13 y `vercel.json` establece un máximo de 60 segundos para la función Django.
+El código está publicado en `BenjaInacap24/proyecto-sefel` (actualmente público). Se creó el proyecto Vercel `proyecto-sefel`, pero GitHub aún no está enlazado: la conexión de Vercel rechazó el acceso al ámbito `morales-company` (403). Aún no hay despliegue porque también falta configurar `DATABASE_URL`. El proyecto Supabase `sefel-portal` está aprovisionado en `MoralesCompany`, región `sa-east-1`; Vercel detecta Django por `manage.py`, usa `sefel.wsgi.application` y publica `STATIC_ROOT` mediante su CDN. `.python-version` fija Python 3.13 y `vercel.json` establece un máximo de 60 segundos para la función Django.
 
 La base usa migraciones de Django versionadas. En la migración de perfiles se agrega `ClientProfile` enlazado al usuario Django y la referencia opcional desde una solicitud. La autenticación y los administradores usan el sistema de Django (`auth_user`, grupos y permisos); no se creó una segunda tabla de usuarios ni se conectó Supabase Auth. `seed_demo` está bloqueado con `DEBUG=False` para evitar crear la cuenta de muestra en producción.
 
