@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar proyecto | SEFEL{% endblock %}
+{% block content %}
+<section class="page-head narrow">
+  <span class="eyebrow">CONFIRMACIÓN 1 DE 2</span><h1>Eliminar proyecto del portafolio</h1>
+  <div class="danger-panel"><strong>{{ item.name }}</strong><p>Si este registro proviene de un proyecto terminado, la eliminación también borrará su proyecto, avances, archivos, solicitud original y ficha de portafolio. Esta acción no se puede deshacer.</p></div>
+  {% if error %}<p class="delete-error">{{ error }}</p>{% endif %}
+  <form method="post" class="form onecol delete-form">{% csrf_token %}<div class="field"><label>Contraseña de tu cuenta interna</label><input type="password" name="password" autocomplete="current-password" required></div><p>Si la contraseña es correcta, tendrás que confirmar la eliminación una segunda vez.</p><div class="project-actions"><button class="button danger" type="submit">Validar contraseña y continuar</button><a class="button outline" href="{% url 'cancel_portfolio_delete' %}">Cancelar</a></div></form>
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="admin-wrap">
+  <a href="/interno/?vista={% if project.state == 'progress' %}progreso{% else %}terminados{% endif %}">← Volver a proyectos</a>
+  <h1>{{ project.name }}</h1>
+  <div class="card detail">
+    <span class="eyebrow">{{ project.code }} · {{ project.get_state_display }}</span><p>{{ project.description }}</p>
+    <section class="client-contact"><h2>Contacto del cliente</h2><p><strong>{{ project.request.contact_name }}</strong>{% if project.request.company_name %}<br>{{ project.request.company_name }}{% endif %}</p><div class="contact-actions">{% if project.request.email %}<a class="button small outline" href="mailto:{{ project.request.email }}">Correo · {{ project.request.email }}</a>{% endif %}{% if project.request.phone %}<a class="button small outline" href="tel:{{ project.request.phone }}">Llamar · {{ project.request.phone }}</a><a class="button small" href="https://wa.me/{{ project.request.phone|cut:' '|cut:'+'|cut:'-' }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}</div><small>Canal preferido: {{ project.request.get_channel_display }}</small></section>
+    <h2>Registrar avance</h2>
+    <form method="post" enctype="multipart/form-data" action="{% url 'add_update' project.pk %}" class="form onecol">{% csrf_token %}
+      <div class="field"><label>Descripción obligatoria</label><textarea name="description" required></textarea></div>
+      <div class="field"><label>Fotografía opcional</label><input type="file" name="photo" accept="image/*"></div>
+      <button class="button">Guardar avance</button>
+    </form>
+    <h2>Historial de avances</h2>
+    {% for u in project.updates.all %}<div class="timeline"><b>{{ u.created_at|date:'d/m/Y H:i' }}</b><p>{{ u.description }}</p>{% if u.photo %}<img class="update-photo" src="{{ u.photo.url }}" alt="Avance">{% endif %}</div>{% empty %}<p>Sin avances registrados.</p>{% endfor %}
+    <h2>Archivos del proyecto</h2>
+    {% for f in project.files.all %}<p><a href="{{ f.file.url }}" download>{{ f.file.name }}</a><form class="inline" method="post" action="{% url 'delete_project_file' f.pk %}">{% csrf_token %}<button class="link-button">Eliminar</button></form></p>{% empty %}<p>Sin archivos cargados.</p>{% endfor %}
+    <form class="form onecol" method="post" enctype="multipart/form-data" action="{% url 'project_file' project.pk %}">{% csrf_token %}<div class="field"><label>Adjuntar archivo</label><input type="file" name="file" required></div><button class="button">Subir archivo</button></form>
+    {% if project.state == 'progress' %}
+      <form method="post" action="{% url 'finish' project.pk %}">{% csrf_token %}<button class="button">Marcar como terminado</button></form>
+    {% elif project.portfolio_item %}
+      <div class="project-actions"><a class="button" href="{% url 'portfolio_edit' project.portfolio_item.pk %}">Editar Portafolio</a></div>
+    {% else %}
+      <div class="project-actions">
+        <form method="post" action="{% url 'start_portfolio' project.pk %}" onsubmit="return confirm('¿Continuar a crear la ficha de portafolio de este proyecto? Una vez asociada al portafolio, no podrás devolverlo a Proyectos en progreso.');">{% csrf_token %}<button class="button">Enviar al portafolio</button></form>
+        <form method="post" action="{% url 'reopen_project' project.pk %}" onsubmit="return confirm('¿Volver a mover este proyecto a Proyectos en progreso?');">{% csrf_token %}<button class="button outline">Volver a progreso</button></form>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar eliminación | SEFEL{% endblock %}
+{% block content %}
+<section class="page-head narrow">
+  <span class="eyebrow">CONFIRMACIÓN 2 DE 2</span><h1>¿Eliminar definitivamente?</h1>
+  <div class="danger-panel"><strong>{{ item.name }}</strong><p>Ya validaste tu contraseña. Si continúas, se borrará la ficha del portafolio{% if source_project %}, el proyecto {{ source_project.code }}, su seguimiento, archivos y solicitud{% endif %}. No existe recuperación desde el prototipo.</p></div>
+  <form method="post" class="project-actions">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}"><button class="button danger" type="submit">Sí, eliminar definitivamente</button><a class="button outline" href="{% url 'cancel_portfolio_delete' %}">No, conservar proyecto</a></form>
+</section>
+{% endblock %}

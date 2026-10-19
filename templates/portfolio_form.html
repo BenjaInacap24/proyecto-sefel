@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-head narrow">
+  <span class="eyebrow">{% if source_project %}PROYECTO TERMINADO {{ source_project.code }}{% else %}PORTAFOLIO{% endif %}</span>
+  <h1>{% if item %}Editar proyecto del portafolio{% else %}Crear proyecto del portafolio{% endif %}</h1>
+  {% if source_project %}<p class="source-project-note">Estás preparando la ficha pública a partir de <strong>{{ source_project.name }}</strong>. El proyecto original permanece en Proyectos terminados. Revisa los datos y la fotografía antes de guardar.</p>{% endif %}
+  <form method="post" enctype="multipart/form-data" class="form onecol">
+    {% csrf_token %}
+    {% if source_project and not item %}<input type="hidden" name="source_project" value="{{ source_project.pk }}">{% endif %}
+    <div class="field"><label>Nombre</label><input name="name" value="{% if item %}{{ item.name }}{% elif source_project %}{{ source_project.name }}{% endif %}" required></div>
+    <div class="field"><label>Categoría</label><select name="category" required>{% for c in categories %}<option value="{{ c.pk }}" {% if item and item.category_id == c.pk or not item and initial_category and initial_category.pk == c.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+    <div class="field"><label>Descripción</label><textarea name="description" required>{% if item %}{{ item.description }}{% elif source_project %}{{ source_project.description }}{% endif %}</textarea></div>
+    <div class="field"><label>Fecha del proyecto</label><input type="date" name="date" value="{% if item %}{{ item.date|date:'Y-m-d' }}{% else %}{{ initial_date|date:'Y-m-d' }}{% endif %}" required></div>
+    {% if item.photo %}<div class="field"><label>Fotografía actual</label><img class="portfolio-current-photo" src="{{ item.photo.url }}" alt="Fotografía actual del portafolio"></div>{% endif %}
+    {% if source_project %}
+      <fieldset class="photo-pick"><legend>Elegir fotografía de un avance</legend>
+        {% for u in photo_updates %}<label class="photo-option"><input type="radio" name="source_photo" value="{{ u.pk }}"><img src="{{ u.photo.url }}" alt=""><span><b>{{ u.created_at|date:'d/m/Y' }}</b><small>{{ u.description|truncatechars:90 }}</small></span></label>{% empty %}<p>Este proyecto no tiene fotografías en sus avances.</p>{% endfor %}
+      </fieldset>
+    {% endif %}
+    <div class="field"><label>O subir una fotografía{% if item.photo %} (reemplazará la actual){% endif %}</label><input type="file" name="photo" accept="image/*"></div>
+    <label><input type="checkbox" name="featured" {% if item.featured %}checked{% endif %}> Destacar en el carrusel de portada</label>
+    <fieldset class="publish-field"><legend>Estado en el sitio web</legend><div class="publish-switch"><label><input type="radio" name="published" value="0" {% if item and not item.published %}checked{% endif %}><span>Retirado</span></label><label><input type="radio" name="published" value="1" {% if not item or item.published %}checked{% endif %}><span>Publicado</span></label></div><small>El estado seleccionado se aplicará al guardar.</small></fieldset>
+    <button class="button">Guardar proyecto</button>
+  </form>
+</section>
+{% endblock %}
