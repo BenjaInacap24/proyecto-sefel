@@ -82,7 +82,7 @@ El orden y alcance de estos puntos debe acordarse con SEFEL: son trabajo pendien
 - El build ejecuta `python manage.py migrate --noinput` y `python manage.py seed_demo`. El seeding es idempotente y requiere `SEFEL_DEMO_SEED_ENABLED=true`; el usuario y contraseña de demostración se configuran como variables de Vercel. La contraseña no está publicada en el repositorio.
 - El comando `seed_demo` crea categorías (incluida Otros), fichas de portafolio y un proyecto/solicitud de ejemplo para probar el flujo interno.
 
-Los adjuntos y fotografías usan el almacenamiento local de Django; en Vercel ese almacenamiento no es persistente. Para probar con archivos, la demostración puede aceptar cargas durante la ejecución, pero no se garantiza que sigan disponibles entre instancias o despliegues. Antes de usar datos reales se debe integrar un almacenamiento externo privado (por ejemplo, Supabase Storage) y definir sus permisos y retención. La cuenta administradora de demostración es solo para revisar el prototipo y debe cambiarse antes de cualquier uso real.
+Los adjuntos y fotografías usan almacenamiento temporal local: en Vercel se guardan bajo `/tmp/sefel-media`, que permite probar cargas desde el formulario, pero los archivos pueden desaparecer cuando se recicla la instancia y no se comparten entre instancias. Antes de usar datos reales se debe integrar almacenamiento externo privado (por ejemplo, Supabase Storage) y definir sus permisos y retención. La cuenta administradora de demostración es solo para revisar el prototipo y debe cambiarse antes de cualquier uso real.
 
 ## Comandos manuales
 
