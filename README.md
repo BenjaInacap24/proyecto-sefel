@@ -2,7 +2,7 @@
 
 Este proyecto es un **prototipo funcional de sitio web y gestión interna**, creado para demostrar cómo podría funcionar la presencia digital de SEFEL y el flujo básico de una solicitud de servicio hasta su seguimiento y publicación en el portafolio. Está hecho con Django 5.2. Usa SQLite por defecto en desarrollo local y puede usar PostgreSQL administrado (por ejemplo, Supabase) mediante `DATABASE_URL`.
 
-Un prototipo sirve para revisar pantallas, navegación, textos y reglas de negocio con usuarios antes de invertir en el desarrollo y operación definitivos. Aunque varias funciones operan de verdad dentro del equipo local, esta entrega no está preparada para recibir información real ni para publicarse en Internet: usa servicios locales, credenciales de demostración y no cuenta con la infraestructura, seguridad operativa ni integraciones necesarias para producción.
+Un prototipo sirve para revisar pantallas, navegación, textos y reglas de negocio antes de invertir en el desarrollo y operación definitivos. Esta versión ya está desplegada para demostración en [proyecto-sefel.vercel.app](https://proyecto-sefel.vercel.app) y usa PostgreSQL en Supabase. Incluye contenido y una cuenta de prueba. Sigue siendo un prototipo: no debe recibir información real de clientes y no cuenta con las integraciones, almacenamiento persistente de archivos ni controles operativos necesarios para producción.
 
 ## Cómo iniciarlo en Windows
 
@@ -47,7 +47,7 @@ Los cambios de vista en el panel también conservan la posición de desplazamien
 
 ## Qué funciona y qué se simula
 
-**Funciona en el entorno local:** navegación pública e interna, persistencia en SQLite, inicio de sesión, formularios y validaciones básicas, carga local de archivos, confirmación mediante enlace visible, flujo solicitud → proyecto → seguimiento → terminado → portafolio, filtros, carrusel, consulta mediante código, y registro de eventos.
+**Funciona en el despliegue de demostración:** navegación pública e interna, inicio de sesión, formularios y validaciones básicas, persistencia de datos en PostgreSQL, confirmación mediante enlace visible, flujo solicitud → proyecto → seguimiento → terminado → portafolio, filtros, carrusel, consulta mediante código y registro de eventos. Las migraciones Django y el contenido de demostración se aplican al desplegar. En desarrollo local, la base por defecto es SQLite.
 
 **Se simula o requiere conexión externa:** entrega de correos y SMS, llamadas, WhatsApp automatizado, notificación a SEFEL y cualquier integración con sistemas externos. Las comunicaciones se guardan en la bitácora local; el prototipo no las envía. Los enlaces de contacto que abre una aplicación del usuario dependen de sus dispositivos y no equivalen a una integración de mensajería.
 
@@ -74,13 +74,15 @@ El orden y alcance de estos puntos debe acordarse con SEFEL: son trabajo pendien
 
 ## Preparación de GitHub, Vercel y Supabase
 
-El código está publicado en `BenjaInacap24/proyecto-sefel` (actualmente público). Se creó el proyecto Vercel `proyecto-sefel`, pero GitHub aún no está enlazado: la conexión de Vercel rechazó el acceso al ámbito `morales-company` (403). Aún no hay despliegue porque también falta configurar `DATABASE_URL`. El proyecto Supabase `sefel-portal` está aprovisionado en `MoralesCompany`, región `sa-east-1`; Vercel detecta Django por `manage.py`, usa `sefel.wsgi.application` y publica `STATIC_ROOT` mediante su CDN. `.python-version` fija Python 3.13 y `vercel.json` establece un máximo de 60 segundos para la función Django.
+- Repositorio: `BenjaInacap24/proyecto-sefel` (público).
+- Despliegue de demostración: [https://proyecto-sefel.vercel.app](https://proyecto-sefel.vercel.app), conectado a `main` en Vercel.
+- Base PostgreSQL: proyecto Supabase `sefel-portal`, organización `MoralesCompany`, región `sa-east-1`.
+- Vercel guarda `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false` y `DATABASE_URL` como variables de entorno; no se incluyen secretos en este repositorio.
+- `VERCEL_PROJECT_PRODUCTION_URL` y `VERCEL_URL` se usan para autorizar el dominio actual y el dominio estable de producción.
+- El build ejecuta `python manage.py migrate --noinput` y `python manage.py seed_demo`. El seeding es idempotente y requiere `SEFEL_DEMO_SEED_ENABLED=true`; el usuario y contraseña de demostración se configuran como variables de Vercel. La contraseña no está publicada en el repositorio.
+- El comando `seed_demo` crea categorías (incluida Otros), fichas de portafolio y un proyecto/solicitud de ejemplo para probar el flujo interno.
 
-La base usa migraciones de Django versionadas. En la migración de perfiles se agrega `ClientProfile` enlazado al usuario Django y la referencia opcional desde una solicitud. La autenticación y los administradores usan el sistema de Django (`auth_user`, grupos y permisos); no se creó una segunda tabla de usuarios ni se conectó Supabase Auth. `seed_demo` está bloqueado con `DEBUG=False` para evitar crear la cuenta de muestra en producción.
-
-El proyecto Vercel ya tiene `DJANGO_DEBUG=false` y una `DJANGO_SECRET_KEY` generada y guardada como variable sensible para desarrollo, preview y producción. Falta configurar `DATABASE_URL` directamente en el panel de Vercel; no la compartas en el repositorio ni en el chat. Cópiala desde Supabase usando SSL y el pooler de transacciones (puerto 6543). `ALLOWED_HOSTS` y CSRF se derivan automáticamente del dominio `VERCEL_URL`; para dominios propios se deben definir `DJANGO_ALLOWED_HOSTS` y `DJANGO_CSRF_TRUSTED_ORIGINS`. Después verifica las variables, aplica las migraciones y crea el usuario administrador con una contraseña propia. El despliegue está pendiente hasta completar ese requisito. No se debe usar la cuenta local `admin / sefel-demo` en un servidor.
-
-Los adjuntos y fotografías siguen configurados con el almacenamiento local de Django. El sistema de archivos de una función Vercel no es almacenamiento persistente, así que antes de aceptar archivos de clientes en producción se debe integrar almacenamiento externo privado (por ejemplo, Supabase Storage) y definir políticas de acceso/retención. Por esto la preparación del despliegue no equivale a estar listo para producción.
+Los adjuntos y fotografías usan el almacenamiento local de Django; en Vercel ese almacenamiento no es persistente. Para probar con archivos, la demostración puede aceptar cargas durante la ejecución, pero no se garantiza que sigan disponibles entre instancias o despliegues. Antes de usar datos reales se debe integrar un almacenamiento externo privado (por ejemplo, Supabase Storage) y definir sus permisos y retención. La cuenta administradora de demostración es solo para revisar el prototipo y debe cambiarse antes de cualquier uso real.
 
 ## Comandos manuales
 
@@ -95,4 +97,5 @@ python manage.py seed_demo
 python manage.py runserver
 ```
 
-`seed_demo` crea datos de demostración y la categoría Otros si aún no existe. No ejecutes este comando con datos reales sin revisar primero su comportamiento.
+`seed_demo` crea datos de demostración y la categoría Otros si aún no existe. En local usa `admin / sefel-demo`. Fuera de desarrollo requiere `SEFEL_DEMO_SEED_ENABLED=true` y una variable secreta `SEFEL_DEMO_ADMIN_PASSWORD`; el comando no imprime la contraseña de producción. No ejecutes este comando con datos reales.
+
