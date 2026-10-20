@@ -62,7 +62,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR/'static']
 STATIC_ROOT = BASE_DIR/'staticfiles'
 MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR/'media'  # Local development only; production needs persistent object storage.
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', '/tmp/sefel-media' if os.getenv('VERCEL') else BASE_DIR/'media'))
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/interno/ingresar/'
 LOGIN_REDIRECT_URL = '/interno/'
@@ -72,3 +72,4 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+
