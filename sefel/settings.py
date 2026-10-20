@@ -12,9 +12,11 @@ if not DEBUG and SECRET_KEY == 'local-prototype-only-change-before-deployment':
     raise ImproperlyConfigured('Set DJANGO_SECRET_KEY in the production environment.')
 
 vercel_host = os.getenv('VERCEL_URL', '').strip()
-allowed_hosts_default = '127.0.0.1,localhost' if DEBUG else vercel_host
+vercel_project_host = os.getenv('VERCEL_PROJECT_PRODUCTION_URL', '').strip()
+vercel_hosts = list(filter(None, [vercel_host, vercel_project_host]))
+allowed_hosts_default = '127.0.0.1,localhost' if DEBUG else ','.join(vercel_hosts)
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', allowed_hosts_default).split(',') if host.strip()]
-csrf_origins_default = f'https://{vercel_host}' if vercel_host and not DEBUG else ''
+csrf_origins_default = ','.join(f'https://{host}' for host in vercel_hosts) if not DEBUG else ''
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', csrf_origins_default).split(',') if origin.strip()]
 
 INSTALLED_APPS = ['django.contrib.admin','django.contrib.auth','django.contrib.contenttypes','django.contrib.sessions','django.contrib.messages','django.contrib.staticfiles','portal']
