@@ -4,5 +4,6 @@
     "sefel/wsgi.py": {
       "maxDuration": 60
     }
-  }
+  },
+  "buildCommand": "python manage.py migrate --noinput"
 }
