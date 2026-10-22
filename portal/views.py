@@ -79,6 +79,30 @@ def dashboard(request):
     tab=request.GET.get('vista','solicitudes'); requests=ServiceRequest.objects.exclude(state='rejected').filter(project__isnull=True).order_by('-created_at')
     projects=ClientProject.objects.filter(state='progress' if tab=='progreso' else 'finished').select_related('request').order_by('-created_at') if tab in ['progreso','terminados'] else None
     return render(request,'dashboard.html',{'tab':tab,'requests':requests,'request_count':requests.count(),'projects':projects,'items':PortfolioItem.objects.order_by('-date'),'notifications':Notification.objects.order_by('-created_at')[:20]})
+def project_new(request):
+    denied=staff_required(request)
+    if denied: return denied
+    if request.method=='POST':
+        data=request.POST
+        name=data.get('name','').strip(); description=data.get('description','').strip()
+        contact_name=data.get('contact_name','').strip(); company=data.get('contact_company','').strip()
+        channel=data.get('contact_channel','').strip(); email=data.get('contact_email','').strip(); phone=data.get('contact_phone','').strip()
+        errors=[]
+        if not name: errors.append('Ingresa el nombre del proyecto.')
+        if not description: errors.append('Ingresa una descripción del proyecto.')
+        if not contact_name: errors.append('Ingresa el nombre del contacto del cliente.')
+        if channel not in ['email','phone']: errors.append('Selecciona el canal de comunicación preferido.')
+        if channel=='email':
+            try: validate_email(email)
+            except ValidationError: errors.append('Ingresa un correo válido para el cliente.')
+        elif channel=='phone' and not phone: errors.append('Ingresa el teléfono del cliente.')
+        if not errors:
+            project=ClientProject.objects.create(name=name,description=description,contact_name=contact_name,contact_company=company,contact_email=email,contact_phone=phone,contact_channel=channel,state='progress')
+            messages.success(request,f'Proyecto creado en progreso. Código de seguimiento: {project.code}.')
+            return redirect('project_detail',pk=project.pk)
+        for error in errors: messages.error(request,error)
+        return render(request,'project_create.html',{'data':data})
+    return render(request,'project_create.html',{})
 def request_detail(request,pk):
     if staff_required(request): return redirect('signin')
     return render(request,'request_detail.html',{'item':get_object_or_404(ServiceRequest,pk=pk)})
@@ -165,7 +189,7 @@ def portfolio_edit(request,pk=None):
             if not item.photo and request.POST.get('source_photo'): item.photo=selected_project_photo(source_project,request.POST.get('source_photo'))
             item.save()
         messages.success(request,'Portafolio actualizado.'); return redirect('/interno/?vista=portafolio')
-    initial_category=Category.objects.filter(name=source_project.request.service).first() if source_project else None
+    initial_category=Category.objects.filter(name=source_project.request.service).first() if source_project and source_project.request else None
     if source_project and not initial_category: initial_category=Category.objects.filter(name='Otros').first()
     initial_date=(source_project.finished_at.date() if source_project and source_project.finished_at else source_project.created_at.date() if source_project else timezone.localdate())
     photo_updates=source_project.updates.exclude(photo='') if source_project else []

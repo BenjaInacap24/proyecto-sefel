@@ -48,10 +48,16 @@ class RequestFile(models.Model):
 
 class ClientProject(models.Model):
     STATES = [('progress','En progreso'),('finished','Terminado')]
-    request = models.OneToOneField(ServiceRequest, related_name='project', on_delete=models.PROTECT)
+    CONTACT_CHANNELS = [('email','Correo'),('phone','Teléfono')]
+    request = models.OneToOneField(ServiceRequest, related_name='project', on_delete=models.PROTECT, null=True, blank=True)
     code = models.CharField(max_length=16, unique=True, blank=True)
     name = models.CharField(max_length=180)
     description = models.TextField()
+    contact_name = models.CharField(max_length=160, blank=True)
+    contact_company = models.CharField(max_length=160, blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=40, blank=True)
+    contact_channel = models.CharField(max_length=10, choices=CONTACT_CHANNELS, blank=True)
     state = models.CharField(max_length=12, choices=STATES, default='progress')
     created_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)

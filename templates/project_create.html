@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Crear proyecto en progreso | SEFEL{% endblock %}
+{% block content %}
+<section class="admin-wrap">
+  <a href="/interno/?vista=progreso">← Volver a proyectos en progreso</a>
+  <span class="eyebrow">GESTIÓN INTERNA</span><h1>Crear proyecto en progreso</h1>
+  <p>Registra aquí un proyecto aceptado por teléfono, correo u otro medio externo. Se creará directamente en seguimiento y recibirá un código para consultar su estado.</p>
+  <form class="form" method="post">{% csrf_token %}
+    <div class="field"><label for="name">Nombre del proyecto</label><input id="name" name="name" maxlength="180" value="{{ data.name|default:'' }}" required></div>
+    <div class="field"><label for="contact_name">Nombre del contacto del cliente</label><input id="contact_name" name="contact_name" maxlength="160" value="{{ data.contact_name|default:'' }}" required></div>
+    <div class="field"><label for="contact_company">Empresa (opcional)</label><input id="contact_company" name="contact_company" maxlength="160" value="{{ data.contact_company|default:'' }}"></div>
+    <div class="field"><label for="contact_channel">Canal preferido de comunicación</label><select id="contact_channel" name="contact_channel" required><option value="">Selecciona un canal</option><option value="email" {% if data.contact_channel == 'email' %}selected{% endif %}>Correo</option><option value="phone" {% if data.contact_channel == 'phone' %}selected{% endif %}>Teléfono / WhatsApp</option></select></div>
+    <div class="field"><label for="contact_email">Correo del cliente</label><input id="contact_email" type="email" name="contact_email" value="{{ data.contact_email|default:'' }}"></div>
+    <div class="field"><label for="contact_phone">Teléfono del cliente</label><input id="contact_phone" type="tel" name="contact_phone" value="{{ data.contact_phone|default:'' }}"></div>
+    <div class="field wide"><label for="description">Descripción</label><textarea id="description" name="description" rows="6" required>{{ data.description|default:'' }}</textarea></div>
+    <div class="field wide"><button class="button" type="submit">Crear y comenzar seguimiento</button></div>
+  </form>
+</section>
+{% endblock %}
