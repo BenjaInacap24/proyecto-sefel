@@ -99,3 +99,32 @@ class Notification(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     sent = models.BooleanField(default=False)
+
+class AdminAccess(models.Model):
+    """Granular capabilities for staff accounts; superusers always retain full access."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='admin_access')
+    view_requests = models.BooleanField(default=False)
+    edit_requests = models.BooleanField(default=False)
+    decide_requests = models.BooleanField(default=False)
+    delete_requests = models.BooleanField(default=False)
+    view_progress_projects = models.BooleanField(default=False)
+    create_progress_project = models.BooleanField(default=False)
+    progress_add_update = models.BooleanField(default=False)
+    progress_upload_file = models.BooleanField(default=False)
+    progress_finish_project = models.BooleanField(default=False)
+    view_finished_projects = models.BooleanField(default=False)
+    finished_add_update = models.BooleanField(default=False)
+    finished_upload_file = models.BooleanField(default=False)
+    finished_send_portfolio = models.BooleanField(default=False)
+    finished_reopen_progress = models.BooleanField(default=False)
+    view_portfolio = models.BooleanField(default=False)
+    add_portfolio = models.BooleanField(default=False)
+    edit_portfolio = models.BooleanField(default=False)
+    delete_portfolio = models.BooleanField(default=False)
+    view_communications = models.BooleanField(default=False)
+
+    @property
+    def active_permissions_count(self):
+        return sum(bool(getattr(self, field.name)) for field in self._meta.fields if isinstance(field, models.BooleanField))
+
+    def __str__(self): return f'Permisos de {self.user.get_username()}'

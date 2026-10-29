@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Administradores | SEFEL{% endblock %}
+{% block content %}
+<section class="admin-wrap">
+  <a href="{% url 'dashboard' %}">← Volver a gestión interna</a>
+  <div class="section-title admin-page-title"><div><span class="eyebrow">CUENTAS INTERNAS</span><h1>Administradores</h1><p>Solo el administrador principal puede crear y gestionar estas cuentas.</p></div><a class="button" href="{% url 'admin_account_new' %}">Crear administrador</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Cuenta</th><th>Nombre</th><th>Correo</th><th>Permisos activos</th><th>Acciones</th></tr></thead><tbody>
+    {% for account in accounts %}<tr><td>{{ account.username }}</td><td>{{ account.get_full_name|default:'—' }}</td><td>{{ account.email }}</td><td>{{ account.admin_access.active_permissions_count|default:0 }}</td><td><div class="table-actions"><a href="{% url 'admin_account_edit' account.pk %}">Editar datos y permisos</a><a class="delete-link" href="{% url 'admin_account_delete' account.pk %}">Eliminar cuenta</a></div></td></tr>
+    {% empty %}<tr><td colspan="5">Aún no hay otras cuentas administradoras.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

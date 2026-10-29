@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_new %}Crear administrador{% else %}Editar administrador{% endif %} | SEFEL{% endblock %}
+{% block content %}
+<section class="admin-wrap">
+  <a href="{% url 'admin_accounts' %}">← Volver a administradores</a>
+  <span class="eyebrow">CUENTA INTERNA</span><h1>{% if is_new %}Crear administrador{% else %}Editar cuenta{% endif %}</h1>
+  <form method="post" class="form admin-account-form">
+    {% csrf_token %}
+    <div class="field"><label for="username">Nombre de usuario</label><input id="username" name="username" value="{{ account.username|default:'' }}" maxlength="150" autocomplete="username" required></div>
+    <div class="field"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" value="{{ account.email|default:'' }}" required></div>
+    <div class="field"><label for="first_name">Nombre</label><input id="first_name" name="first_name" value="{{ account.first_name|default:'' }}" maxlength="150"></div>
+    <div class="field"><label for="last_name">Apellido</label><input id="last_name" name="last_name" value="{{ account.last_name|default:'' }}" maxlength="150"></div>
+    <div class="field wide"><label for="password">{% if is_new %}Contraseña inicial{% else %}Cambiar contraseña (opcional){% endif %}</label><input id="password" name="password" type="password" minlength="12" autocomplete="new-password" {% if is_new %}required{% endif %}><small>{% if is_new %}Usa al menos 12 caracteres. La cuenta se crea sin permisos activos.{% else %}Déjalo vacío para conservar la contraseña actual.{% endif %}</small></div>
+    {% if not is_new %}
+      <div class="field wide"><h2>Permisos</h2><p>Activa o desactiva cada capacidad. Los cambios se guardan al presionar el botón inferior.</p></div>
+      {% for group in permission_groups %}<fieldset class="permission-group field wide"><legend>{{ group.name }}</legend><div class="permission-grid">{% for permission in group.permissions %}<label class="permission-toggle"><input type="checkbox" name="perm_{{ permission.key }}" {% if permission.enabled %}checked{% endif %}><span>{{ permission.label }}</span></label>{% endfor %}</div></fieldset>{% endfor %}
+      <input type="hidden" name="save_permissions" value="1">
+    {% else %}<p class="wide info-note">Al guardar, la cuenta quedará creada con todos los permisos apagados. Luego podrás encender solo los que correspondan.</p>{% endif %}
+    <div class="field wide"><button class="button" type="submit">{% if is_new %}Crear cuenta{% else %}Guardar datos y permisos{% endif %}</button></div>
+  </form>
+  {% if not is_new %}<div class="danger-panel account-delete-action"><strong>Eliminar cuenta</strong><p>La persona perderá acceso al panel interno.</p><a class="button danger" href="{% url 'admin_account_delete' account.pk %}">Eliminar esta cuenta administradora</a></div>{% endif %}
+</section>
+{% endblock %}

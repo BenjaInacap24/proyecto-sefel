@@ -8,25 +8,25 @@
     <section class="client-contact"><h2>Contacto del cliente</h2>
       {% if project.request %}<p><strong>{{ project.request.contact_name }}</strong>{% if project.request.company_name %}<br>{{ project.request.company_name }}{% endif %}</p><div class="contact-actions">{% if project.request.email %}<a class="button small outline" href="mailto:{{ project.request.email }}">Correo · {{ project.request.email }}</a>{% endif %}{% if project.request.phone %}<a class="button small outline" href="tel:{{ project.request.phone }}">Llamar · {{ project.request.phone }}</a><a class="button small" href="https://wa.me/{{ project.request.phone|cut:' '|cut:'+'|cut:'-' }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}</div><small>Canal preferido: {{ project.request.get_channel_display }}</small>
       {% else %}<p><strong>{{ project.contact_name }}</strong>{% if project.contact_company %}<br>{{ project.contact_company }}{% endif %}</p><div class="contact-actions">{% if project.contact_email %}<a class="button small outline" href="mailto:{{ project.contact_email }}">Correo · {{ project.contact_email }}</a>{% endif %}{% if project.contact_phone %}<a class="button small outline" href="tel:{{ project.contact_phone }}">Llamar · {{ project.contact_phone }}</a><a class="button small" href="https://wa.me/{{ project.contact_phone|cut:' '|cut:'+'|cut:'-' }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}</div><small>Canal preferido: {{ project.get_contact_channel_display }}</small>{% endif %}</section>
-    <h2>Registrar avance</h2>
+    {% if permissions.add_update %}<h2>Registrar avance</h2>
     <form method="post" enctype="multipart/form-data" action="{% url 'add_update' project.pk %}" class="form onecol">{% csrf_token %}
       <div class="field"><label>Descripción obligatoria</label><textarea name="description" required></textarea></div>
       <div class="field"><label>Fotografía opcional</label><input type="file" name="photo" accept="image/*"></div>
       <button class="button">Guardar avance</button>
-    </form>
+    </form>{% endif %}
     <h2>Historial de avances</h2>
     {% for u in project.updates.all %}<div class="timeline"><b>{{ u.created_at|date:'d/m/Y H:i' }}</b><p>{{ u.description }}</p>{% if u.photo %}<img class="update-photo" src="{{ u.photo.url }}" alt="Avance">{% endif %}</div>{% empty %}<p>Sin avances registrados.</p>{% endfor %}
     <h2>Archivos del proyecto</h2>
-    {% for f in project.files.all %}<p><a href="{{ f.file.url }}" download>{{ f.file.name }}</a><form class="inline" method="post" action="{% url 'delete_project_file' f.pk %}">{% csrf_token %}<button class="link-button">Eliminar</button></form></p>{% empty %}<p>Sin archivos cargados.</p>{% endfor %}
-    <form class="form onecol" method="post" enctype="multipart/form-data" action="{% url 'project_file' project.pk %}">{% csrf_token %}<div class="field"><label>Adjuntar archivo</label><input type="file" name="file" required></div><button class="button">Subir archivo</button></form>
+    {% for f in project.files.all %}<p class="file-link"><a href="{{ f.file.url }}" download>{{ f.file.name }}</a>{% if permissions.upload_file %}<form class="inline" method="post" action="{% url 'delete_project_file' f.pk %}">{% csrf_token %}<button class="link-button">Eliminar</button></form>{% endif %}</p>{% empty %}<p>Sin archivos cargados.</p>{% endfor %}
+    {% if permissions.upload_file %}<form class="form onecol" method="post" enctype="multipart/form-data" action="{% url 'project_file' project.pk %}">{% csrf_token %}<div class="field"><label>Adjuntar archivo</label><input type="file" name="file" required></div><button class="button">Subir archivo</button></form>{% endif %}
     {% if project.state == 'progress' %}
-      <form method="post" action="{% url 'finish' project.pk %}">{% csrf_token %}<button class="button">Marcar como terminado</button></form>
+      {% if permissions.finish_project %}<form method="post" action="{% url 'finish' project.pk %}">{% csrf_token %}<button class="button">Marcar como terminado</button></form>{% endif %}
     {% elif project.portfolio_item %}
-      <div class="project-actions"><a class="button" href="{% url 'portfolio_edit' project.portfolio_item.pk %}">Editar Portafolio</a></div>
+      <div class="project-actions">{% if permissions.edit_portfolio %}<a class="button" href="{% url 'portfolio_edit' project.portfolio_item.pk %}">Editar Portafolio</a>{% endif %}</div>
     {% else %}
       <div class="project-actions">
-        <form method="post" action="{% url 'start_portfolio' project.pk %}" onsubmit="return confirm('¿Continuar a crear la ficha de portafolio de este proyecto? Una vez asociada al portafolio, no podrás devolverlo a Proyectos en progreso.');">{% csrf_token %}<button class="button">Enviar al portafolio</button></form>
-        <form method="post" action="{% url 'reopen_project' project.pk %}" onsubmit="return confirm('¿Volver a mover este proyecto a Proyectos en progreso?');">{% csrf_token %}<button class="button outline">Volver a progreso</button></form>
+        {% if permissions.send_portfolio %}<form method="post" action="{% url 'start_portfolio' project.pk %}" onsubmit="return confirm('¿Continuar a crear la ficha de portafolio de este proyecto? Una vez asociada al portafolio, no podrás devolverlo a Proyectos en progreso.');">{% csrf_token %}<button class="button">Enviar al portafolio</button></form>{% endif %}
+        {% if permissions.reopen_project %}<form method="post" action="{% url 'reopen_project' project.pk %}" onsubmit="return confirm('¿Volver a mover este proyecto a Proyectos en progreso?');">{% csrf_token %}<button class="button outline">Volver a progreso</button></form>{% endif %}
       </div>
     {% endif %}
   </div>

@@ -91,3 +91,63 @@
 @media(max-width:760px){.form.request-form{grid-template-columns:minmax(0,1fr);padding:36px 6%}.request-type-label{grid-column:auto}}
 @media(max-width:620px){.contact-choice-grid{grid-template-columns:minmax(0,1fr);max-width:360px;margin-top:28px}.contact-choice{width:100%}}
 @media(max-width:540px){.carousel-project,.carousel-project:nth-child(even){grid-template-columns:minmax(0,1fr)}.carousel-project>img,.carousel-project>.photo-placeholder,.carousel-project:nth-child(even)>img,.carousel-project:nth-child(even)>.photo-placeholder,.carousel-project:nth-child(even)>.carousel-project-copy{grid-column:1;grid-row:auto}.carousel-project>img,.carousel-project>.photo-placeholder{width:100%;max-width:100%;max-height:300px;justify-self:stretch}.carousel-project-copy{padding:18px}}
+/* Responsive refinements for the public pages and the internal workspace. */
+html,body{max-width:100%;overflow-x:hidden}
+body{min-width:320px}
+.header{min-width:0;gap:20px}
+.header nav{min-width:0;flex-wrap:wrap}
+.grid>*{min-width:0}
+.form,.field,.permission-group{min-width:0}
+.field input,.field select,.field textarea{min-width:0;max-width:100%}
+.table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{min-width:680px}
+.admin-head{gap:20px;min-width:0}
+.admin-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.admin-head-actions form{margin:0}
+.section-title{gap:16px;min-width:0}
+.section-title>*{min-width:0}
+.admin-page-title{align-items:center;flex-wrap:wrap}
+.admin-page-title h1{font-size:clamp(2rem,4vw,3.2rem)}
+.detail{width:100%;max-width:900px;min-width:0}
+.file-link,.file-link a,.client-contact{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.permission-group{width:100%;padding:16px;border:1px solid var(--line)}
+.permission-group legend{padding:0 8px;font-weight:800}
+.permission-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:10px}
+.permission-toggle{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;background:var(--paper);border:1px solid var(--line);font-weight:600}
+.permission-toggle input{flex:none;width:20px;height:20px;margin:2px 0 0;accent-color:var(--red)}
+.account-delete-action{max-width:880px}
+@media(max-width:900px){.header{height:auto;padding:14px 5%;align-items:flex-start;flex-direction:column;gap:12px}.header nav{gap:10px 16px}}
+@media(max-width:760px){
+ .admin-wrap{width:100%;margin:28px auto;padding:0 16px 48px}
+ .admin-head{align-items:flex-start;flex-direction:column}
+ .admin-head-actions{width:100%;justify-content:flex-start}
+ .admin-menu{margin:18px 0 28px}
+ .admin-menu a{flex:1 1 42%;text-align:center;white-space:normal;padding:11px 10px}
+ .section-title,.admin-page-title{align-items:flex-start;flex-direction:column}
+ .section-title .button,.admin-page-title .button{max-width:100%}
+ .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+ .project-actions{align-items:stretch}
+ .project-actions form,.project-actions>.button{max-width:100%}
+ .form{grid-template-columns:minmax(0,1fr)}
+ .field.wide{grid-column:auto}
+ .permission-grid{grid-template-columns:minmax(0,1fr)}
+ .page-head.narrow{width:100%;max-width:100%;padding-left:6%;padding-right:6%}
+ .narrow .form{width:100%}
+ .detail{padding:18px}
+}
+@media(max-width:540px){
+ .header nav{width:100%;gap:8px 12px}
+ .header nav a{font-size:.85rem}
+ .header nav .button{font-size:.82rem}
+ .admin-head-actions{align-items:stretch;flex-direction:column}
+ .admin-head-actions .button,.admin-head-actions form,.admin-head-actions form button{width:100%;text-align:center}
+ .admin-menu a{flex:1 1 100%;border-right:0;border-bottom:1px solid #ddd}
+ .project-actions form{width:100%}
+ .project-actions button,.project-actions>a{max-width:100%;white-space:normal}
+ .publish-switch{max-width:100%;flex-wrap:wrap}
+ .contact-actions{align-items:stretch;flex-direction:column}
+ .contact-actions .button{max-width:100%;overflow-wrap:anywhere}
+ .table-wrap table{min-width:620px}
+ .danger-panel{padding:16px}
+ .whatsapp{right:12px;bottom:12px}
+}

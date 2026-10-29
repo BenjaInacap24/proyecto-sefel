@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar administrador | SEFEL{% endblock %}
+{% block content %}
+<section class="page-head narrow">
+  <span class="eyebrow">CONFIRMACIÓN</span><h1>Eliminar cuenta administradora</h1>
+  <div class="danger-panel"><strong>{{ account.get_full_name|default:account.username }}</strong><p>La cuenta y sus permisos serán eliminados. Esta persona ya no podrá acceder a Gestión interna.</p></div>
+  <form method="post" class="project-actions">{% csrf_token %}<input type="hidden" name="confirm" value="yes"><button class="button danger" type="submit">Sí, eliminar cuenta</button><a class="button outline" href="{% url 'admin_account_edit' account.pk %}">Cancelar</a></form>
+</section>
+{% endblock %}
