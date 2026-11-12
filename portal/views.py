@@ -26,7 +26,11 @@ def has_admin_access(user,permission):
 def staff_required(request,permission=None):
     if not request.user.is_authenticated or not request.user.is_staff: return redirect('signin')
     if request.user.is_superuser: return None
-    if permission and has_admin_access(request.user,permission): return None
+    # The dashboard itself has no single permission gate: it builds its tabs
+    # from the admin's individual permissions. Treat a missing permission as
+    # authentication-only access, otherwise non-superuser admins are sent
+    # back to the dashboard forever (302 /interno/ -> /interno/).
+    if permission is None or has_admin_access(request.user,permission): return None
     messages.error(request,'Tu cuenta no tiene permiso para realizar esa acción.')
     return redirect('dashboard')
 def superuser_required(request):
