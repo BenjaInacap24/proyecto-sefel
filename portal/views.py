@@ -86,11 +86,10 @@ def lookup(request):
     return render(request,'lookup.html',{'project':project,'searched':bool(code)})
 @never_cache
 def signin(request):
-    if request.user.is_authenticated:
-        if request.user.is_staff: return redirect('dashboard')
-        logout(request)
-        messages.error(request,'Esta cuenta no tiene acceso a la gestión interna. Inicia sesión con una cuenta administradora.')
     if request.method=='POST':
+        # A login form may be opened while another account's session is still active.
+        # Clear it first so the submitted credentials always establish a fresh session.
+        if request.user.is_authenticated: logout(request)
         user=authenticate(request,username=request.POST.get('username',''),password=request.POST.get('password',''))
         if user and user.is_staff: login(request,user); return redirect('dashboard')
         messages.error(request,'Usuario o contraseña incorrectos.')
@@ -399,3 +398,4 @@ def cancel_portfolio_delete(request):
     if denied: return denied
     request.session.pop('portfolio_delete_confirmation',None)
     return redirect('/interno/?vista=portafolio')
+
