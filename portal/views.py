@@ -31,7 +31,6 @@ def staff_required(request,permission=None):
     # authentication-only access, otherwise non-superuser admins are sent
     # back to the dashboard forever (302 /interno/ -> /interno/).
     if permission is None or has_admin_access(request.user,permission): return None
-    messages.error(request,'Tu cuenta no tiene permiso para realizar esa acción.')
     return redirect('dashboard')
 def superuser_required(request):
     if not request.user.is_authenticated or not request.user.is_superuser: return redirect('signin')
@@ -104,6 +103,13 @@ def dashboard(request):
     denied=staff_required(request)
     if denied: return denied
     permissions={field:has_admin_access(request.user,field) for _,group in ADMIN_PERMISSION_GROUPS for field,_ in group}
+    unavailable_permission_groups=[]
+    if not request.user.is_superuser:
+        for group_name,group_permissions in ADMIN_PERMISSION_GROUPS:
+            unavailable=[label for key,label in group_permissions if not permissions[key]]
+            if unavailable:
+                unavailable_permission_groups.append({'name':group_name,'actions':unavailable})
+    unavailable_action_count=sum(len(group['actions']) for group in unavailable_permission_groups)
     tabs=[('solicitudes','view_requests'),('progreso','view_progress_projects'),('terminados','view_finished_projects'),('portafolio','view_portfolio'),('avisos','view_communications')]
     available=[name for name,permission in tabs if permissions[permission]]
     tab=request.GET.get('vista','')
@@ -112,7 +118,7 @@ def dashboard(request):
     if tab=='progreso': projects=ClientProject.objects.filter(state='progress').select_related('request').order_by('-created_at')
     elif tab=='terminados': projects=ClientProject.objects.filter(state='finished').select_related('request').order_by('-created_at')
     else: projects=None
-    return render(request,'dashboard.html',{'tab':tab,'request_count':requests.count(),'requests':requests,'projects':projects,'items':PortfolioItem.objects.order_by('-date') if permissions['view_portfolio'] else PortfolioItem.objects.none(),'notifications':Notification.objects.order_by('-created_at')[:20] if permissions['view_communications'] else Notification.objects.none(),'permissions':permissions,'is_superuser':request.user.is_superuser})
+    return render(request,'dashboard.html',{'tab':tab,'request_count':requests.count(),'requests':requests,'projects':projects,'items':PortfolioItem.objects.order_by('-date') if permissions['view_portfolio'] else PortfolioItem.objects.none(),'notifications':Notification.objects.order_by('-created_at')[:20] if permissions['view_communications'] else Notification.objects.none(),'permissions':permissions,'is_superuser':request.user.is_superuser,'unavailable_permission_groups':unavailable_permission_groups,'unavailable_action_count':unavailable_action_count})
 def admin_accounts(request):
     if superuser_required(request): return redirect('signin')
     User=get_user_model()
