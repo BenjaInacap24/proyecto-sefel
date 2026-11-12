@@ -8,6 +8,7 @@ from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.cache import never_cache
 from .models import AdminAccess, Category, ServiceRequest, RequestFile, ClientProject, ProjectFile, ProgressUpdate, PortfolioItem, Notification
 
 SERVICES=['Estructuras metálicas','Construcción y obras civiles','Mantenimiento mecánico','Mantenimiento eléctrico','Fabricación especial','Apoyo industrial','Otros']
@@ -83,14 +84,19 @@ def confirm_request(request,token):
 def lookup(request):
     code=request.GET.get('codigo','').strip().upper(); project=ClientProject.objects.filter(code=code).select_related('request').first() if code else None
     return render(request,'lookup.html',{'project':project,'searched':bool(code)})
+@never_cache
 def signin(request):
-    if request.user.is_authenticated: return redirect('dashboard')
+    if request.user.is_authenticated:
+        if request.user.is_staff: return redirect('dashboard')
+        logout(request)
+        messages.error(request,'Esta cuenta no tiene acceso a la gestión interna. Inicia sesión con una cuenta administradora.')
     if request.method=='POST':
         user=authenticate(request,username=request.POST.get('username',''),password=request.POST.get('password',''))
         if user and user.is_staff: login(request,user); return redirect('dashboard')
         messages.error(request,'Usuario o contraseña incorrectos.')
     return render(request,'signin.html',{'show_demo_credentials':settings.DEBUG})
 def signout(request): logout(request); return redirect('home')
+@never_cache
 def dashboard(request):
     denied=staff_required(request)
     if denied: return denied
